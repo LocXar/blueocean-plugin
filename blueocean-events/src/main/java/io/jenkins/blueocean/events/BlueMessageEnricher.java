@@ -27,6 +27,7 @@ import hudson.Extension;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import io.jenkins.blueocean.rest.hal.Link;
+import io.jenkins.blueocean.rest.hal.LinkResolver;
 import io.jenkins.blueocean.service.embedded.rest.OrganizationImpl;
 import jenkins.model.ParameterizedJobMixIn;
 import org.jenkins.pubsub.EventProps;
@@ -38,12 +39,15 @@ import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
 @Extension
 public class BlueMessageEnricher extends MessageEnricher {
+    @Inject
+    LinkResolver linkResolver;
     
     enum BlueEventProps {
         blueocean_job_rest_url,
@@ -61,7 +65,7 @@ public class BlueMessageEnricher extends MessageEnricher {
         if (channelName.equals(Events.JobChannel.NAME)) {
             JobChannelMessage jobChannelMessage = (JobChannelMessage) message;
             ParameterizedJobMixIn.ParameterizedJob job = jobChannelMessage.getJob();
-            Link jobUrl = getLink(job);
+            Link jobUrl = linkResolver.resolve(job);
             
             jobChannelMessage.set(BlueEventProps.blueocean_job_rest_url, jobUrl.getHref());
             jobChannelMessage.set(BlueEventProps.blueocean_job_pipeline_name, job.getName());

@@ -55,6 +55,14 @@ public class BranchImpl extends PipelineImpl {
             }
             return null;
         }
+
+        @Override
+        public Resource resolve(Item context, Reachable parent, Item target) {
+            if (context==target) {
+                return getPipeline(context,parent);
+            }
+            return null;
+        }
     }
 
     public static class PullRequest extends Resource {
