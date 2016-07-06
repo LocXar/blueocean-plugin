@@ -48,9 +48,13 @@ public abstract class BluePipelineFactory implements ExtensionPoint {
         return ExtensionList.lookup(BluePipelineFactory.class);
     }
 
+    /**
+     * Given a Job in Jenkins, map that to corresponding blue ocean API object,
+     * for example so that you can get its URL.
+     */
     public static Resource resolve(Item item) {
         for (BluePipelineFactory f : all()) {
-            Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), OrganizationImpl.INSTANCE, item);
+            Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), OrganizationImpl.INSTANCE.getPipelines(), item);
             if (r!=null)    return r;
         }
         return null;
