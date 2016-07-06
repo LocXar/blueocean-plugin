@@ -115,7 +115,7 @@ public class PipelineFolderImpl extends BluePipelineFolder {
         public Resource resolve(Item context, Reachable parent, Item target) {
             PipelineFolderImpl folder = getPipeline(context, parent);
             if (folder!=null) {
-                Item nextChild = findNextStep(context,target);
+                Item nextChild = findNextStep(folder.folder,target);
                 for (BluePipelineFactory f : all()) {
                     Resource answer = f.resolve(nextChild, folder, target);
                     if (answer!=null)
@@ -123,22 +123,6 @@ public class PipelineFolderImpl extends BluePipelineFolder {
                 }
             }
             return null;
-        }
-
-        /**
-         * Returns the immediate child of 'context' that is also the ancestor of 'target'
-         */
-        private Item findNextStep(Item context, Item target) {
-            Item i = null;
-            while (context!=target) {
-                i = target;
-                if (target.getParent() instanceof Item) {
-                    target = (Item) target.getParent();
-                } else {
-                    throw new AssertionError("context was supposed to be a parent of target");
-                }
-            }
-            return i;
         }
     }
 }

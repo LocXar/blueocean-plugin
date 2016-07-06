@@ -3,6 +3,7 @@ package io.jenkins.blueocean.rest.model;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Item;
+import hudson.model.ItemGroup;
 import io.jenkins.blueocean.rest.Reachable;
 import jenkins.model.Jenkins;
 
@@ -30,7 +31,25 @@ public abstract class BluePipelineFactory implements ExtensionPoint {
 
     public static Resource resolve(Item item, Reachable parent) {
         for (BluePipelineFactory f : all()) {
-            f.resolve(Jenkins.getInstance(),parent,item);
+            Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), parent, item);
+            if (r!=null)    return r;
         }
+        return null;
+    }
+
+    /**
+     * Returns the immediate child of 'context' that is also the ancestor of 'target'
+     */
+    protected static Item findNextStep(ItemGroup context, Item target) {
+        Item i = null;
+        while (context!=target) {
+            i = target;
+            if (target.getParent() instanceof Item) {
+                target = (Item) target.getParent();
+            } else {
+                throw new AssertionError("context was supposed to be a parent of target");
+            }
+        }
+        return i;
     }
 }
