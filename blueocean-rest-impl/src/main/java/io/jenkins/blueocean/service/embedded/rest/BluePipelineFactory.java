@@ -1,10 +1,12 @@
-package io.jenkins.blueocean.rest.model;
+package io.jenkins.blueocean.service.embedded.rest;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Item;
 import hudson.model.ItemGroup;
 import io.jenkins.blueocean.rest.Reachable;
+import io.jenkins.blueocean.rest.model.BluePipeline;
+import io.jenkins.blueocean.rest.model.Resource;
 import jenkins.model.Jenkins;
 
 /**
@@ -48,7 +50,7 @@ public abstract class BluePipelineFactory implements ExtensionPoint {
 
     public static Resource resolve(Item item) {
         for (BluePipelineFactory f : all()) {
-            Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), parent, item);
+            Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), , item);
             if (r!=null)    return r;
         }
         return null;
