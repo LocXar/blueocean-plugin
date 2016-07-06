@@ -19,9 +19,26 @@ import jenkins.model.Jenkins;
 public abstract class BluePipelineFactory implements ExtensionPoint {
     public abstract BluePipeline getPipeline(Item item, Reachable parent);
 
-    /*
-        invariants:
-            context is ancestor of target
+    /**
+     * Finds a blue ocean API model object that pairs up with the given {@code target},
+     * by looking at the intermediate core model object {@code context} that is an ancestor
+     * of {@code target}.
+     *
+     * If this {@link BluePipelineFactory} understands how to map {@code context} to
+     * {@link BluePipeline} (as in {@code getPipeline(item,parent)!=null}), then the resolve
+     * method should also apply the same logic to map {@code context} and then recursively
+     * resolve {@code target}.
+     *
+     * @param context
+     *      This is always an ancestor of target (including target==context)
+     * @param parent
+     *      The parent object of the blue ocean API model object that pairs up with the 'context' parameter
+     * @param target
+     *      The core model object that we are trying to map to {@link Resource}
+     *
+     * @return
+     *      null if this implementation doesn't know how to map {@code context} to a blue ocean API model object.
+     *      Otherwise return the BO API model object that pairs up with {@code target}
      */
     public abstract Resource resolve(Item context, Reachable parent, Item target);
 
@@ -29,7 +46,7 @@ public abstract class BluePipelineFactory implements ExtensionPoint {
         return ExtensionList.lookup(BluePipelineFactory.class);
     }
 
-    public static Resource resolve(Item item, Reachable parent) {
+    public static Resource resolve(Item item) {
         for (BluePipelineFactory f : all()) {
             Resource r = f.resolve(findNextStep(Jenkins.getInstance(), item), parent, item);
             if (r!=null)    return r;
